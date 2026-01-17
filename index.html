@@ -2,7 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Культурный Тест & AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -22,9 +22,16 @@
       /* Prevent scrolling during test */
       body {
         overscroll-behavior: none;
+        touch-action: pan-x pan-y;
+        -webkit-tap-highlight-color: transparent;
+      }
+      /* Disable selection */
+      .select-none {
+        user-select: none;
+        -webkit-user-select: none;
       }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@^19.2.3",
@@ -38,12 +45,9 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-slate-900 text-slate-100 font-sans antialiased">
+  <body class="bg-slate-900 text-slate-100 font-sans antialiased overflow-hidden select-none">
     <div id="root"></div>
-    <!-- Use relative path ./index.tsx for correct loading on GitHub Pages subpaths -->
     <script type="module" src="./index.tsx"></script>
-  <script type="module" src="/index.tsx"></script>
-</body>
+  </body>
 </html>
