@@ -4,9 +4,12 @@ import { Category, Stimulus, StimulusType } from './types';
 export const SUPABASE_URL = "https://gqulzoctsltwxmzvofwv.supabase.co"; 
 export const SUPABASE_KEY = "sb_publishable_alcHOMdoEOvJmuSvwEeeoQ_HnbodgT3";
 
-// URL for the second part of the test
-// TODO: Replace this with the actual URL of the second IAT test
-export const NEXT_TEST_URL = "https://example.com/second-iat-part";
+// URL for the next part (if any)
+export const NEXT_TEST_URL = "https://example.com/finish";
+
+// Configurable Labels (You can change these names here)
+export const LABEL_NATURE_A = "Природа А";
+export const LABEL_NATURE_B = "Природа Б";
 
 // Bashkir Words
 export const BASHKIR_WORDS = [
@@ -21,13 +24,11 @@ export const RUSSIAN_WORDS = [
 ];
 
 // Local Images
-// Using import.meta.glob ensures that Vite processes these files as assets,
-// includes them in the build output, and provides the correct hashed URLs.
-// This works even if the 'images' folder is not in 'public'.
-const horseModules = import.meta.glob('./images/horse_*.jpg', { eager: true, import: 'default' });
-const cowModules = import.meta.glob('./images/cow_*.jpg', { eager: true, import: 'default' });
+// Expects files like nature_a_1.jpg, nature_b_1.jpg
+const natureAModules = import.meta.glob('./images/nature_a_*.jpg', { eager: true, import: 'default' });
+const natureBModules = import.meta.glob('./images/nature_b_*.jpg', { eager: true, import: 'default' });
 
-// Helper to sort images numerically (e.g. horse_1, horse_2, ..., horse_10)
+// Helper to sort images numerically
 const getSortedImages = (modules: Record<string, unknown>) => {
   return Object.entries(modules)
     .sort(([keyA], [keyB]) => {
@@ -39,21 +40,21 @@ const getSortedImages = (modules: Record<string, unknown>) => {
     .map(([_, url]) => url as string);
 };
 
-export const HORSE_IMAGES = getSortedImages(horseModules);
-export const COW_IMAGES = getSortedImages(cowModules);
+export const NATURE_A_IMAGES = getSortedImages(natureAModules);
+export const NATURE_B_IMAGES = getSortedImages(natureBModules);
 
 // Fallback / Debugging
-if (HORSE_IMAGES.length === 0) {
-  console.warn("No horse images found! Check that files exist in ./images/horse_*.jpg");
+if (NATURE_A_IMAGES.length === 0) {
+  console.warn(`No images found for ${LABEL_NATURE_A}! Check that files exist in ./images/nature_a_*.jpg`);
 }
-if (COW_IMAGES.length === 0) {
-  console.warn("No cow images found! Check that files exist in ./images/cow_*.jpg");
+if (NATURE_B_IMAGES.length === 0) {
+  console.warn(`No images found for ${LABEL_NATURE_B}! Check that files exist in ./images/nature_b_*.jpg`);
 }
 
 // Generate Stimuli Pool
 export const STIMULI_POOL: Stimulus[] = [
   ...BASHKIR_WORDS.map((w, i) => ({ id: `bash_${i}`, content: w, type: StimulusType.WORD, category: Category.BASHKIR })),
   ...RUSSIAN_WORDS.map((w, i) => ({ id: `rus_${i}`, content: w, type: StimulusType.WORD, category: Category.RUSSIAN })),
-  ...HORSE_IMAGES.map((url, i) => ({ id: `horse_${i}`, content: url, type: StimulusType.IMAGE, category: Category.HORSE })),
-  ...COW_IMAGES.map((url, i) => ({ id: `cow_${i}`, content: url, type: StimulusType.IMAGE, category: Category.COW })),
+  ...NATURE_A_IMAGES.map((url, i) => ({ id: `natA_${i}`, content: url, type: StimulusType.IMAGE, category: Category.NATURE_A })),
+  ...NATURE_B_IMAGES.map((url, i) => ({ id: `natB_${i}`, content: url, type: StimulusType.IMAGE, category: Category.NATURE_B })),
 ];
