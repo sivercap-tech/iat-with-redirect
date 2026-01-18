@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { STIMULI_POOL, BASHKIR_WORDS, RUSSIAN_WORDS, COW_IMAGES, HORSE_IMAGES } from '../constants';
+import { STIMULI_POOL, BASHKIR_WORDS, RUSSIAN_WORDS, COW_IMAGES, HORSE_IMAGES, NEXT_TEST_URL } from '../constants';
 import { Category, StimulusType, UserSession, BlockConfig } from '../types';
-import { saveResults } from '../services/supabaseService';
+import { saveResults, recordTransition } from '../services/supabaseService';
 
 // Helper to get random item
 const getRandom = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
@@ -118,7 +118,7 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
   const [finished, setFinished] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [isCopied, setIsCopied] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Initialize blocks based on session group
   const blocks = useMemo(() => getBlocks(session.group), [session.group]);
@@ -135,6 +135,7 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
     trialCount,
     finished,
     isSaving,
+    isTransitioning,
     blocks
   });
 
@@ -150,9 +151,10 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
       trialCount, 
       finished,
       isSaving,
+      isTransitioning,
       blocks
     };
-  }, [showGeneralIntro, currentBlockIndex, isInstruction, currentStimulus, startTime, mistake, trialCount, finished, isSaving, blocks]);
+  }, [showGeneralIntro, currentBlockIndex, isInstruction, currentStimulus, startTime, mistake, trialCount, finished, isSaving, isTransitioning, blocks]);
 
   const finishTest = useCallback(async (finalResults: any[]) => {
     setFinished(true);
@@ -170,6 +172,18 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
       setSaveError(response.error.message || "Неизвестная ошибка при сохранении");
     }
   }, [session]);
+
+  const handleNextTest = async () => {
+    setIsTransitioning(true);
+    // Record that the user is proceeding to part 2
+    await recordTransition(session);
+
+    // Redirect to the next test URL
+    // We pass the current userId to maintain the session identity across apps/sites
+    const separator = NEXT_TEST_URL.includes('?') ? '&' : '?';
+    // Use 'ext_user_id' or just 'userId' depending on what the second app expects
+    window.location.href = `${NEXT_TEST_URL}${separator}originalUserId=${session.userId}`;
+  };
 
   const nextTrial = useCallback(() => {
     const blocksLocal = stateRef.current.blocks;
@@ -201,7 +215,7 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
 
   const handleInput = useCallback((action: 'LEFT' | 'RIGHT' | 'SPACE') => {
     const state = stateRef.current;
-    if (state.finished || state.isSaving) return;
+    if (state.finished || state.isSaving || state.isTransitioning) return;
 
     // Handle General Intro Screen
     if (state.showGeneralIntro) {
@@ -271,8 +285,8 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      // setIsCopied(true); // Assuming this state exists or was meant to exist
+      // setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy: ', err);
     }
@@ -308,7 +322,7 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
   if (finished) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-slate-900 text-white p-8 text-center">
-        <h1 className="text-4xl font-bold mb-4 text-emerald-400">Тест завершен!</h1>
+        <h1 className="text-4xl font-bold mb-4 text-emerald-400">Первая часть завершена!</h1>
         
         {isSaving ? (
           <div className="flex flex-col items-center">
@@ -322,38 +336,24 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
             <p className="text-sm text-slate-400">Пожалуйста, сообщите администратору или проверьте настройки Supabase URL.</p>
           </div>
         ) : (
-          <p className="text-lg mb-8 text-slate-300">Данные успешно сохранены. Спасибо за участие.</p>
+          <p className="text-lg mb-8 text-slate-300">Данные успешно сохранены.</p>
         )}
 
-        <div className="flex gap-4 mt-4">
-          <button 
-            onClick={onComplete}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors"
-          >
-            Вернуться в меню
-          </button>
-          
-          <button 
-            onClick={handleShare}
-            className={`px-8 py-3 rounded-lg font-bold text-lg transition-colors flex items-center gap-2 ${
-              isCopied 
-                ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
-                : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
-            }`}
-          >
-            {isCopied ? (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                Скопировано!
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-                Поделиться
-              </>
-            )}
-          </button>
-        </div>
+        {isTransitioning ? (
+           <div className="flex flex-col items-center mt-4">
+              <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+              <p className="text-emerald-400">Переход ко второй части...</p>
+           </div>
+        ) : (
+          <div className="flex gap-4 mt-4">
+            <button 
+              onClick={handleNextTest}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-lg font-bold text-lg transition-colors shadow-lg hover:scale-105 transform duration-200"
+            >
+              Перейти ко второй части
+            </button>
+          </div>
+        )}
       </div>
     );
   }
