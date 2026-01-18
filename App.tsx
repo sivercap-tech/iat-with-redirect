@@ -10,30 +10,27 @@ const generateUUID = () => {
   });
 };
 
-const Dashboard = ({ startTest }) => {
+const Dashboard = ({ startTest }: { startTest: () => void }) => {
   return (
     <div className="min-h-screen bg-slate-900 p-4 md:p-8 flex items-center justify-center">
       <div className="max-w-4xl w-full grid grid-cols-1 gap-8">
         
         {/* Header Section */}
-        <div className="text-center mb-4">
-          <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-4">
-            Culture IAT
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 mb-6 leading-tight drop-shadow-sm">
+            Имплицитные ассоциативные тесты
           </h1>
-          <p className="text-slate-400 text-lg">
-            Исследование имплицитных ассоциаций: Башкирская vs Русская культура
-          </p>
         </div>
 
         {/* Start Test Card */}
-        <div className="bg-gradient-to-r from-blue-900/50 to-slate-800 rounded-2xl p-8 md:p-12 border border-blue-500/30 shadow-lg flex flex-col items-center justify-center text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Готовы пройти тест?</h2>
-          <p className="text-blue-200 mb-8 max-w-2xl text-lg">
+        <div className="bg-gradient-to-r from-blue-900/40 to-slate-800/40 backdrop-blur-md rounded-2xl p-8 md:p-12 border border-slate-700/50 shadow-2xl flex flex-col items-center justify-center text-center">
+          <h2 className="text-3xl font-bold text-white mb-6">Готовы пройти тест?</h2>
+          <p className="text-blue-100 mb-10 max-w-2xl text-lg leading-relaxed opacity-90">
             Тест займет около 5-10 минут. Вам предстоит классифицировать слова и изображения как можно быстрее.
           </p>
           <button 
             onClick={startTest}
-            className="bg-blue-600 hover:bg-blue-500 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg shadow-blue-500/20 transform hover:scale-105 transition-all active:scale-95"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg shadow-emerald-500/20 transform hover:scale-105 transition-all active:scale-95 border-t border-emerald-400/20"
           >
             Начать Тест
           </button>
@@ -45,7 +42,7 @@ const Dashboard = ({ startTest }) => {
 };
 
 const AppContent = () => {
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState<any>(null);
   const [testActive, setTestActive] = useState(false);
 
   useEffect(() => {
