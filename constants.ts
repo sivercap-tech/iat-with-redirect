@@ -1,8 +1,6 @@
 import { Category, Stimulus, StimulusType } from './types';
 
 // Supabase Configuration
-// NOTE: You need to provide your specific SUPABASE_URL here. 
-// The key provided in the prompt is used, but a URL is required for the client to work.
 export const SUPABASE_URL = "https://gqulzoctsltwxmzvofwv.supabase.co"; 
 export const SUPABASE_KEY = "sb_publishable_alcHOMdoEOvJmuSvwEeeoQ_HnbodgT3";
 
@@ -19,10 +17,34 @@ export const RUSSIAN_WORDS = [
 ];
 
 // Local Images
-// Assumes images are located in 'public/images/' and accessible via './images/'
-export const HORSE_IMAGES = Array.from({ length: 8 }, (_, i) => `./images/horse_${i + 1}.jpg`);
+// Using import.meta.glob ensures that Vite processes these files as assets,
+// includes them in the build output, and provides the correct hashed URLs.
+// This works even if the 'images' folder is not in 'public'.
+const horseModules = import.meta.glob('./images/horse_*.jpg', { eager: true, import: 'default' });
+const cowModules = import.meta.glob('./images/cow_*.jpg', { eager: true, import: 'default' });
 
-export const COW_IMAGES = Array.from({ length: 8 }, (_, i) => `./images/cow_${i + 1}.jpg`);
+// Helper to sort images numerically (e.g. horse_1, horse_2, ..., horse_10)
+const getSortedImages = (modules: Record<string, unknown>) => {
+  return Object.entries(modules)
+    .sort(([keyA], [keyB]) => {
+      // Extract the number from the filename
+      const numA = parseInt(keyA.match(/_(\d+)\./)?.[1] || '0');
+      const numB = parseInt(keyB.match(/_(\d+)\./)?.[1] || '0');
+      return numA - numB;
+    })
+    .map(([_, url]) => url as string);
+};
+
+export const HORSE_IMAGES = getSortedImages(horseModules);
+export const COW_IMAGES = getSortedImages(cowModules);
+
+// Fallback / Debugging
+if (HORSE_IMAGES.length === 0) {
+  console.warn("No horse images found! Check that files exist in ./images/horse_*.jpg");
+}
+if (COW_IMAGES.length === 0) {
+  console.warn("No cow images found! Check that files exist in ./images/cow_*.jpg");
+}
 
 // Generate Stimuli Pool
 export const STIMULI_POOL: Stimulus[] = [
