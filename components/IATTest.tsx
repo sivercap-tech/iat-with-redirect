@@ -530,7 +530,8 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
   return (
     <div className="flex flex-col h-screen bg-slate-900 text-white overflow-hidden select-none">
       {/* Header / Labels */}
-      <div className="flex justify-between items-start p-4 md:p-6 h-28 md:h-32">
+      <div className="flex justify-between items-center p-4 md:p-6 h-28 md:h-32 w-full max-w-5xl mx-auto mt-4">
+        
         <div className="flex-1 text-left text-lg md:text-2xl font-bold uppercase tracking-wider text-blue-400 leading-tight">
           {currentBlock.leftCategories.map(c => (
              <div key={c}>{c === Category.BASHKIR ? 'Башкиры' : c === Category.RUSSIAN ? 'Русские' : c === Category.HORSE ? 'Лошади' : 'Коровы'}</div>
