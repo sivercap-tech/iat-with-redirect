@@ -105,6 +105,8 @@ const getBlocks = (group: 'A' | 'B'): BlockConfig[] => {
 const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: () => void }) => {
   // New State: General Instructions before starting blocks
   const [showGeneralIntro, setShowGeneralIntro] = useState(true);
+  // patch 1.1
+  const [introStep, setIntroStep] = useState(0);
 
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
   const [isInstruction, setIsInstruction] = useState(true);
@@ -357,70 +359,86 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
   // General Intro Screen (before any blocks)
   if (showGeneralIntro) {
     return (
-      <div 
-        className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white p-4 text-center max-w-7xl mx-auto cursor-pointer"
-        onClick={() => handleInput('SPACE')}
-      >
-        <div className="bg-slate-800 p-4 md:p-8 rounded-xl border border-slate-700 shadow-2xl mb-4 md:mb-8 w-full">
-          <p className="text-base md:text-2xl leading-relaxed text-slate-200 mb-6 md:mb-8 max-w-4xl mx-auto">
-            Постарайтесь действовать как можно быстрее, но при этом сохранять внимательность, чтобы допустить минимум ошибок. 
-            <br/><br/>
-            Вы будете использовать клавиши 
-            <span className="font-bold text-emerald-400 mx-2">'E'</span> и 
-            <span className="font-bold text-blue-400 mx-2">'I'</span> 
-            (или кнопки на экране), чтобы как можно быстрее относить слова и картинки к разным группам. 
-            <br/><br/>
-            Если вы ошибетесь, на экране появится <span className="text-red-500 font-bold">X</span> красного цвета. Нажмите другую кнопку для продолжения.
-            <br/><br/>
-            Ниже показаны четыре группы и примеры элементов, которые к ним относятся:
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 text-left">
-            {/* Bashkirs */}
-            <div className="bg-slate-900/60 p-4 md:p-5 rounded-lg border border-slate-700">
-              <h3 className="font-bold text-emerald-400 text-lg mb-2 md:mb-4 text-center border-b border-slate-700 pb-2">Башкиры</h3>
-              <ul className="text-slate-300 space-y-1 text-sm md:text-base text-center">
-                {BASHKIR_WORDS.map((w) => <li key={w}>{w}</li>)}
-              </ul>
-            </div>
-
-            {/* Russians */}
-            <div className="bg-slate-900/60 p-4 md:p-5 rounded-lg border border-slate-700">
-              <h3 className="font-bold text-blue-400 text-lg md:text-xl mb-2 md:mb-4 text-center border-b border-slate-700 pb-2">Русские</h3>
-              <ul className="text-slate-300 space-y-1 text-sm md:text-base text-center">
-                {RUSSIAN_WORDS.map((w) => <li key={w}>{w}</li>)}
-              </ul>
-            </div>
-
-            {/* Horses */}
-            <div className="bg-slate-900/60 p-4 md:p-5 rounded-lg border border-slate-700">
-              <h3 className="font-bold text-emerald-400 text-lg md:text-xl mb-2 md:mb-4 text-center border-b border-slate-700 pb-2">Лошади</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {HORSE_IMAGES.slice(0, 4).map((src, i) => (
-                  <div key={i} className="aspect-square bg-slate-800 rounded overflow-hidden">
-                    <img src={src} className="w-full h-full object-cover" alt="Horse" onError={handleImageError} />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Cows */}
-            <div className="bg-slate-900/60 p-4 md:p-5 rounded-lg border border-slate-700">
-              <h3 className="font-bold text-blue-400 text-lg md:text-xl mb-2 md:mb-4 text-center border-b border-slate-700 pb-2">Коровы</h3>
-              <div className="grid grid-cols-2 gap-2">
-                 {COW_IMAGES.slice(0, 4).map((src, i) => (
-                  <div key={i} className="aspect-square bg-slate-800 rounded overflow-hidden">
-                    <img src={src} className="w-full h-full object-cover" alt="Cow" onError={handleImageError} />
-                  </div>
-                ))}
-              </div>
-            </div>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white p-4 text-center max-w-7xl mx-auto">
+        
+        {/* Шаг 1: Текстовая инструкция */}
+        {introStep === 0 && (
+          <div className="bg-slate-800 p-6 md:p-10 rounded-xl border border-slate-700 shadow-2xl w-full max-w-3xl flex flex-col items-center">
+            <h2 className="text-2xl md:text-4xl font-bold text-emerald-400 mb-6">Инструкция</h2>
+            <p className="text-lg md:text-2xl leading-relaxed text-slate-200 mb-8 text-left md:text-center">
+              Постарайтесь действовать как можно быстрее, но при этом сохранять внимательность.
+              <br/><br/>
+              Вы будете использовать клавиши 
+              <span className="font-bold text-emerald-400 mx-2">'E'</span> и 
+              <span className="font-bold text-blue-400 mx-2">'I'</span> 
+              (или кнопки на экране), чтобы сортировать слова и картинки.
+              <br/><br/>
+              Если вы ошибетесь, появится красный <span className="text-red-500 font-bold">X</span>. Исправьте ошибку, нажав другую кнопку, чтобы продолжить.
+            </p>
+            <button 
+              onClick={() => setIntroStep(1)}
+              className="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transition-transform active:scale-95"
+            >
+              Далее
+            </button>
           </div>
-        </div>
+        )}
 
-        <div className="animate-pulse text-emerald-400 font-bold text-lg md:text-2xl mt-2 px-4">
-          Нажмите на экран или ПРОБЕЛ, чтобы продолжить
-        </div>
+        {/* Шаг 2: Примеры категорий */}
+        {introStep === 1 && (
+          <div className="bg-slate-800 p-4 md:p-8 rounded-xl border border-slate-700 shadow-2xl w-full flex flex-col items-center">
+            <p className="text-lg md:text-2xl text-slate-300 mb-6">Запомните категории и примеры:</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 text-left mb-8 w-full">
+              {/* Bashkirs */}
+              <div className="bg-slate-900/60 p-4 rounded-lg border border-slate-700">
+                <h3 className="font-bold text-emerald-400 text-lg mb-2 text-center border-b border-slate-700 pb-2">Башкиры</h3>
+                <ul className="text-slate-300 space-y-1 text-sm md:text-base text-center">
+                  {BASHKIR_WORDS.map((w) => <li key={w}>{w}</li>)}
+                </ul>
+              </div>
+
+              {/* Russians */}
+              <div className="bg-slate-900/60 p-4 rounded-lg border border-slate-700">
+                <h3 className="font-bold text-blue-400 text-lg mb-2 text-center border-b border-slate-700 pb-2">Русские</h3>
+                <ul className="text-slate-300 space-y-1 text-sm md:text-base text-center">
+                  {RUSSIAN_WORDS.map((w) => <li key={w}>{w}</li>)}
+                </ul>
+              </div>
+
+              {/* Horses */}
+              <div className="bg-slate-900/60 p-4 rounded-lg border border-slate-700">
+                <h3 className="font-bold text-emerald-400 text-lg mb-2 text-center border-b border-slate-700 pb-2">Лошади</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {HORSE_IMAGES.slice(0, 4).map((src, i) => (
+                    <div key={i} className="aspect-square bg-slate-800 rounded overflow-hidden">
+                      <img src={src} className="w-full h-full object-cover" alt="Horse" onError={handleImageError} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cows */}
+              <div className="bg-slate-900/60 p-4 rounded-lg border border-slate-700">
+                <h3 className="font-bold text-blue-400 text-lg mb-2 text-center border-b border-slate-700 pb-2">Коровы</h3>
+                <div className="grid grid-cols-2 gap-2">
+                   {COW_IMAGES.slice(0, 4).map((src, i) => (
+                    <div key={i} className="aspect-square bg-slate-800 rounded overflow-hidden">
+                      <img src={src} className="w-full h-full object-cover" alt="Cow" onError={handleImageError} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+        <button 
+              onClick={() => handleInput('SPACE')}
+              className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transition-transform active:scale-95 animate-pulse"
+            >
+              Начать тест
+            </button>
+          </div>
+        )}
       </div>
     );
   }
