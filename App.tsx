@@ -47,8 +47,10 @@ const AppContent = () => {
   const [testActive, setTestActive] = useState(false);
 
   useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const externalId = queryParams.get('external_id');
+    const userId = externalId || generateUUID();
     // Initialize Session with Counterbalancing
-    const userId = generateUUID();
     const referrer = document.referrer || "direct";
     
     // Random assignment to Group A or B
