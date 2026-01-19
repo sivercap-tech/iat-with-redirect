@@ -361,8 +361,8 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
         className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white p-4 md:p-8 text-center max-w-7xl mx-auto cursor-pointer"
         onClick={() => handleInput('SPACE')}
       >
-        <div className="bg-slate-800 p-8 rounded-xl border border-slate-700 shadow-2xl mb-8 w-full">
-          <p className="text-xl md:text-2xl leading-relaxed text-slate-200 mb-8 max-w-4xl mx-auto">
+        <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-2xl mb-8 w-full">
+          <p className="text-sm md:text-2xl leading-relaxed text-slate-200 mb-8 max-w-4xl mx-auto">
             Постарайтесь действовать как можно быстрее, но при этом сохранять внимательность, чтобы допустить минимум ошибок. 
             <br/><br/>
             Вы будете использовать клавиши 
@@ -378,7 +378,7 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
             {/* Bashkirs */}
             <div className="bg-slate-900/60 p-5 rounded-lg border border-slate-700">
-              <h3 className="font-bold text-emerald-400 text-xl mb-4 text-center border-b border-slate-700 pb-2">Башкиры</h3>
+              <h3 className="font-bold text-emerald-400 text-lg mb-4 text-center border-b border-slate-700 pb-2">Башкиры</h3>
               <ul className="text-slate-300 space-y-1 text-sm text-center">
                 {BASHKIR_WORDS.map((w) => <li key={w}>{w}</li>)}
               </ul>
