@@ -435,7 +435,7 @@ const IATTest = ({ session, onComplete }: { session: UserSession, onComplete: ()
               onClick={() => handleInput('SPACE')}
               className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transition-transform active:scale-95 animate-pulse"
             >
-              Начать тест
+              Далее
             </button>
           </div>
         )}
